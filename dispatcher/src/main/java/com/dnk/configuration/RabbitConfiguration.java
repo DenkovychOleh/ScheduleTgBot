@@ -1,13 +1,11 @@
-package ua.dnk.configuration;
+package com.dnk.configuration;
 
+import com.dnk.model.RabbitQueue;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-
-import static ua.dnk.model.RabbitQueue.TEXT_MESSAGE_UPDATED;
 
 @Configuration
 public class RabbitConfiguration {
@@ -17,6 +15,10 @@ public class RabbitConfiguration {
     }
     @Bean
     public Queue textMessageQueue() {
-        return new Queue(TEXT_MESSAGE_UPDATED);
+        return new Queue(RabbitQueue.TEXT_MESSAGE_UPDATED);
+    }
+    @Bean
+    public Queue answerMessageQueue() {
+        return new Queue(RabbitQueue.ANSWER_MESSAGE);
     }
 }

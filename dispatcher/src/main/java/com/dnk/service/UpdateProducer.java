@@ -1,4 +1,4 @@
-package ua.dnk.service;
+package com.dnk.service;
 
 import org.telegram.telegrambots.meta.api.objects.Update;
 

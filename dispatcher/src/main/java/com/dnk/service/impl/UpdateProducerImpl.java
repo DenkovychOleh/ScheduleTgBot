@@ -1,10 +1,10 @@
-package ua.dnk.service.impl;
+package com.dnk.service.impl;
 
 import lombok.extern.log4j.Log4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import ua.dnk.service.UpdateProducer;
+import com.dnk.service.UpdateProducer;
 
 @Log4j
 @Service
