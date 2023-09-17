@@ -8,7 +8,6 @@ import com.dnk.service.MainService;
 import com.dnk.service.ProducerService;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 
@@ -28,16 +27,10 @@ public class MainServiceImpl implements MainService {
     @Override
     public void processTextMessage(Update update) {
         saveRawData(update);
-
         AppUser appUser = findOrSaveAppUser(update);
-
         String text = update.getMessage().getText();
-        String output = "";
-
-        output = processServiceCommand(appUser, text);
-
+        String output = processServiceCommand(appUser, text);
         Long chatId = update.getMessage().getChatId();
-
         sendAnswer(output, chatId);
     }
 

@@ -26,10 +26,13 @@ public class AppUser {
     @CreationTimestamp
     @Column(name = "first_login_data")
     private LocalDateTime firstLoginDate;
-    @Column(name = "fist_name")
+    @Column(name = "first_name")
     private String fistName;
     @Column(name = "last_name")
     private String lastName;
     @Column(name = "username")
     private String username;
+
+    @OneToOne(mappedBy = "appUser")
+    private Student student;
 }
