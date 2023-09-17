@@ -7,6 +7,7 @@ import com.dnk.utils.MessageUtils;
 import lombok.extern.log4j.Log4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import static com.dnk.model.RabbitQueue.TEXT_MESSAGE_UPDATED;
@@ -29,15 +30,12 @@ public class UpdateController {
     }
 
     public void processUpdate(Update update) {
-        if (!update.hasMessage()) {
-            log.error("Received update is null");
-            return;
-        }
-        if (!update.getMessage().hasText()) {
+        Message message = update.getMessage();
+        if(message.hasText()) {
+            processTextMessage(update);
+        } else {
             log.error("Unsupported message type is received: " + update);
             setUnsupportedMessageTypeView(update);
-        } else {
-            processTextMessage(update);
         }
     }
 
