@@ -12,6 +12,8 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 
+import static com.dnk.service.enums.ServiceCommands.*;
+
 @Service
 public class MainServiceImpl implements MainService {
     private final RawDataDAO rawDataDAO;
@@ -27,18 +29,51 @@ public class MainServiceImpl implements MainService {
     public void processTextMessage(Update update) {
         saveRawData(update);
 
-        Message message1 = update.getMessage();
-        User telegramUser = message1.getFrom();
-        AppUser appUser = findOrSaveAppUser(telegramUser);
+        AppUser appUser = findOrSaveAppUser(update);
 
-        Message message = update.getMessage();
+        String text = update.getMessage().getText();
+        String output = "";
+
+        output = processServiceCommand(appUser, text);
+
+        Long chatId = update.getMessage().getChatId();
+
+        sendAnswer(output, chatId);
+    }
+
+    private void sendAnswer(String output, Long chatId) {
         SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(message.getChatId().toString());
-        sendMessage.setText(message.getChat().getFirstName() + ", hello from NODE");
+        sendMessage.setChatId(chatId);
+        sendMessage.setText(output);
         producerService.produceAnswer(sendMessage);
     }
 
-    private AppUser findOrSaveAppUser(User telegramUser) {
+    private String processServiceCommand(AppUser appUser, String cmd) {
+        if (MY_SCHEDULE_THIS_WEEK.toString().equals(cmd)) {
+            return "мій розклад на цей тиждень";
+        } else if (MY_SCHEDULE_NEXT_WEEK.toString().equals(cmd)) {
+            return "мій розклад на наступний тиждень";
+        } else if (SCHEDULE_THIS_WEEK.toString().equals(cmd)) {
+            return "загальний розклад на цей тиждень";
+        } else if (SCHEDULE_NEXT_WEEK.toString().equals(cmd)) {
+            return "загальний розклад на наступний тиждень";
+        } else if (HELP.toString().equals(cmd)) {
+            return help();
+        } else {
+            return "Невідома команда, спробуй /help";
+        }
+    }
+
+    private String help() {
+        return "Cписок доступних команд:\n" +
+                "/MyScheduleThisWeek - виводить твій розклад на цей тиждень;\n" +
+                "/MyScheduleNextWeek - виводить твій розклад на наступний тиждень;\n" +
+                "/ScheduleThisWeek   - виводить загальний розклад на цей тиждень;\n" +
+                "/ScheduleNextWeek   - виводить загальний розклад на наступний тиждень;";
+    }
+
+    private AppUser findOrSaveAppUser(Update update) {
+        User telegramUser = update.getMessage().getFrom();
         AppUser persistentAppUser = appUserDAO.findByTelegramUserId(telegramUser.getId());
         if (persistentAppUser == null) {
             AppUser transientAppUser = AppUser.builder()
