@@ -7,7 +7,7 @@ import java.util.List;
 
 @Getter
 @Setter
-@EqualsAndHashCode(exclude = "id")
+//@EqualsAndHashCode(exclude = "id")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
