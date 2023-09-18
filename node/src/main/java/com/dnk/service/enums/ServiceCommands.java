@@ -2,6 +2,7 @@ package com.dnk.service.enums;
 
 public enum ServiceCommands {
     HELP("/help"),
+    MY_SCHEDULE_TODAY("/MyScheduleToday"),
     MY_SCHEDULE_THIS_WEEK("/MyScheduleThisWeek"),
     MY_SCHEDULE_NEXT_WEEK("/MyScheduleNextWeek"),
     SCHEDULE_THIS_WEEK("/ScheduleThisWeek"),

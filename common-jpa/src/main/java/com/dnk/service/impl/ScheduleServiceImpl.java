@@ -16,6 +16,8 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     @Override
     public List<Schedule> getSchedulesForStudentById(Long studentId) {
-        return scheduleDAO.findByStudentId(studentId).orElseThrow(() -> new ScheduleException("Помилка отримання розкладу для даного студента."));
+        return scheduleDAO.findByStudentId(studentId)
+                .filter(lessons -> !lessons.isEmpty())
+                .orElseThrow(() -> new ScheduleException("Помилка отримання розкладу для даного студента."));
     }
 }

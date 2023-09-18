@@ -9,4 +9,6 @@
 
     public interface ScheduleDayDAO extends JpaRepository<ScheduleDay, Long> {
         Optional<List<ScheduleDay>> findBySchedules_Id(Long scheduleId);
+        Optional<List<ScheduleDay>> findBySchedules_StudentIdAndIsEvenWeek(Long studentId, Boolean isEvenWeek);
+
     }

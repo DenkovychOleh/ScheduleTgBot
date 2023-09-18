@@ -18,7 +18,6 @@ import java.time.temporal.WeekFields;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.dnk.service.enums.ServiceCommands.*;
@@ -57,6 +56,8 @@ public class MainServiceImpl implements MainService {
     private String processServiceCommand(AppUser appUser, String cmd) {
         if (MY_SCHEDULE_THIS_WEEK.toString().equals(cmd)) {
             return showStudentScheduleThisWeek(appUser);
+        } else if (MY_SCHEDULE_TODAY.toString().equals(cmd)) {
+            return showStudentScheduleToday(appUser);
         } else if (MY_SCHEDULE_NEXT_WEEK.toString().equals(cmd)) {
             return "мій розклад на наступний тиждень";
         } else if (SCHEDULE_THIS_WEEK.toString().equals(cmd)) {
@@ -70,19 +71,7 @@ public class MainServiceImpl implements MainService {
         }
     }
     private List<ScheduleDay> getStudentScheduleDays(Long studentId, boolean isEvenWeek) {
-        List<Schedule> studentSchedules = scheduleService.getSchedulesForStudentById(studentId);
-        // Фільтруємо розклад для парного або непарного тижня
-        List<Schedule> filteredSchedules = studentSchedules.stream()
-                .filter(schedule -> schedule.getScheduleDay().getIsEvenWeek() == isEvenWeek)
-                .collect(Collectors.toList());
-
-        // Отримуємо дні розкладу
-        List<ScheduleDay> scheduleDays = new ArrayList<>();
-        for (Schedule schedule : filteredSchedules) {
-            scheduleDays.addAll(scheduleDayService.getScheduleDaysByScheduleId(schedule.getId()));
-        }
-
-        return scheduleDays;
+        return scheduleDayService.findBySchedules_StudentIdAndIsEvenWeek(studentId, isEvenWeek);
     }
 
     private List<Lesson> getStudentLessonsForWeek(Long studentId, List<ScheduleDay> scheduleDays) {
@@ -128,18 +117,41 @@ public class MainServiceImpl implements MainService {
 
     public String showStudentScheduleThisWeek(AppUser appUser) {
         boolean isEvenWeek = determineCurrentWeek();
-        Student student = studentService.findByAppUser(appUser);
-        Long studentId = student.getId();
-        List<ScheduleDay> scheduleDays = getStudentScheduleDays(studentId, isEvenWeek);
-        List<Lesson> studentLessons = getStudentLessonsForWeek(studentId, scheduleDays);
-        List<Lesson> todayLessons = filterLessonsForToday(studentLessons);
-
-        if (todayLessons.isEmpty()) {
-            return "Для вас сьогодні пари не знайдено.";
-        } else {
+        try {
+            Student student = studentService.findByAppUser(appUser);
+            Long studentId = student.getId();
+            List<ScheduleDay> scheduleDays = getStudentScheduleDays(studentId, isEvenWeek);
+            List<Lesson> studentLessons = getStudentLessonsForWeek(studentId, scheduleDays);
+            List<Lesson> todayLessons = filterLessonsForToday(studentLessons);
             return buildScheduleResponse(todayLessons, student);
+        } catch (ScheduleException exception) {
+            return exception.getMessage();
         }
     }
+
+
+    public String showStudentScheduleToday(AppUser appUser) {
+        boolean currentWeek = determineCurrentWeek();
+        try {
+            Student student = studentService.findByAppUser(appUser);
+            Long studentId = student.getId();
+            String dayName = getCurrentDay();
+            List<Lesson> todayLessons = lessonService
+                    .findByDayNameAndStudentAndEvenWeek(dayName,studentId, currentWeek);
+            return buildScheduleResponse(todayLessons, student);
+        } catch (ScheduleException exception) {
+            return "Error: " + exception.getMessage();
+        }
+    }
+
+    private String getCurrentDay() {
+        LocalDate today = LocalDate.now(ZoneId.of("Europe/Kiev"));
+        Locale ukrainianLocale = new Locale("uk", "UA");
+        String dayName = today.getDayOfWeek().getDisplayName(TextStyle.FULL_STANDALONE, ukrainianLocale);
+        dayName = dayName.substring(0, 1).toUpperCase() + dayName.substring(1);
+        return dayName;
+    }
+
 
     private boolean determineCurrentWeek() {
         LocalDate today = LocalDate.now(ZoneId.of("Europe/Kiev"));
@@ -149,6 +161,7 @@ public class MainServiceImpl implements MainService {
     private String help() {
         return "Cписок доступних команд:\n" +
                 "/MyScheduleThisWeek - виводить твій розклад на цей тиждень;\n" +
+                "/MyScheduleToday - виводить твій розклад на цей тиждень;\n" +
                 "/MyScheduleNextWeek - виводить твій розклад на наступний тиждень;\n" +
                 "/ScheduleThisWeek   - виводить загальний розклад на цей тиждень;\n" +
                 "/ScheduleNextWeek   - виводить загальний розклад на наступний тиждень;";
