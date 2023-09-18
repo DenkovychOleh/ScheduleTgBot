@@ -11,6 +11,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.TextStyle;
@@ -18,7 +19,6 @@ import java.time.temporal.WeekFields;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
 import static com.dnk.service.enums.ServiceCommands.*;
 
@@ -70,35 +70,11 @@ public class MainServiceImpl implements MainService {
             return "Невідома команда, спробуй /help";
         }
     }
-    private List<ScheduleDay> getStudentScheduleDays(Long studentId, boolean isEvenWeek) {
-        return scheduleDayService.findBySchedules_StudentIdAndIsEvenWeek(studentId, isEvenWeek);
-    }
-
-    private List<Lesson> getStudentLessonsForWeek(Long studentId, List<ScheduleDay> scheduleDays) {
-        List<Lesson> studentLessons = new ArrayList<>();
-
-        for (ScheduleDay scheduleDay : scheduleDays) {
-            List<Lesson> lessons = lessonService.getLessonsByScheduleDayId(scheduleDay.getId());
-            studentLessons.addAll(lessons);
-        }
-
-        return studentLessons;
-    }
-
-    private List<Lesson> filterLessonsForToday(List<Lesson> lessons) {
-        LocalDate today = LocalDate.now(ZoneId.of("Europe/Kiev"));
-        Locale ukrainianLocale = new Locale("uk", "UA");
-        String dayName = today.getDayOfWeek().getDisplayName(TextStyle.FULL_STANDALONE, ukrainianLocale);
-
-        return lessons.stream()
-                .filter(lesson -> lesson.getScheduleDay().getDayName().equalsIgnoreCase(dayName))
-                .collect(Collectors.toList());
-    }
 
     private String buildScheduleResponse(List<Lesson> lessons, Student student) {
         StringBuilder scheduleStringBuilder = new StringBuilder();
 
-        scheduleStringBuilder.append(student.getFirstName()).append(", ваш розклад на цей тиждень:\n");
+        scheduleStringBuilder.append(student.getFirstName()).append(", ваш розклад:\n");
 
         for (Lesson lesson : lessons) {
             String lessonInfo = String.format(
@@ -120,10 +96,11 @@ public class MainServiceImpl implements MainService {
         try {
             Student student = studentService.findByAppUser(appUser);
             Long studentId = student.getId();
-            List<ScheduleDay> scheduleDays = getStudentScheduleDays(studentId, isEvenWeek);
-            List<Lesson> studentLessons = getStudentLessonsForWeek(studentId, scheduleDays);
-            List<Lesson> todayLessons = filterLessonsForToday(studentLessons);
-            return buildScheduleResponse(todayLessons, student);
+            List<String> daysOfWeek = getDaysOfWeek();
+
+            List<Lesson> lessonList = lessonService.findByWeekdaysAndStudentAndEvenWeek(studentId, isEvenWeek, daysOfWeek);
+
+            return buildScheduleResponse(lessonList, student);
         } catch (ScheduleException exception) {
             return exception.getMessage();
         }
@@ -150,6 +127,22 @@ public class MainServiceImpl implements MainService {
         String dayName = today.getDayOfWeek().getDisplayName(TextStyle.FULL_STANDALONE, ukrainianLocale);
         dayName = dayName.substring(0, 1).toUpperCase() + dayName.substring(1);
         return dayName;
+    }
+
+
+    public List<String> getDaysOfWeek() {
+        List<String> daysOfWeek = new ArrayList<>();
+
+        Locale ukrainianLocale = new Locale("uk", "UA");
+
+        for (DayOfWeek day : DayOfWeek.values()) {
+            String dayName = day.getDisplayName(TextStyle.FULL, ukrainianLocale);
+            dayName = dayName.replace("ʼ", "");
+            dayName = dayName.substring(0, 1).toUpperCase() + dayName.substring(1);
+            daysOfWeek.add(dayName);
+        }
+
+        return daysOfWeek;
     }
 
 
