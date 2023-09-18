@@ -2,7 +2,10 @@ package com.dnk.service.impl;
 
 import com.dnk.dao.AppUserDAO;
 import com.dnk.dao.RawDataDAO;
-import com.dnk.entity.*;
+import com.dnk.entity.AppUser;
+import com.dnk.entity.Lesson;
+import com.dnk.entity.RawData;
+import com.dnk.entity.Student;
 import com.dnk.exception.ScheduleException;
 import com.dnk.service.*;
 import lombok.AllArgsConstructor;
@@ -14,6 +17,7 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.time.temporal.WeekFields;
 import java.util.ArrayList;
@@ -29,8 +33,6 @@ public class MainServiceImpl implements MainService {
     private final ProducerService producerService;
     private final AppUserService appUserService;
     private final LessonService lessonService;
-    private final ScheduleDayService scheduleDayService;
-    private final ScheduleService scheduleService;
     private final StudentService studentService;
     private final AppUserDAO appUserDAO;
 
@@ -49,6 +51,7 @@ public class MainServiceImpl implements MainService {
     private void sendAnswer(String output, Long chatId) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
+        sendMessage.setParseMode("HTML");
         sendMessage.setText(output);
         producerService.produceAnswer(sendMessage);
     }
@@ -71,12 +74,22 @@ public class MainServiceImpl implements MainService {
         }
     }
 
-    private String buildScheduleResponse(List<Lesson> lessons, Student student) {
+    private String buildScheduleResponse(List<Lesson> lessons, Student student, String dateInfo) {
         StringBuilder scheduleStringBuilder = new StringBuilder();
 
-        scheduleStringBuilder.append(student.getFirstName()).append(", ваш розклад:\n");
+        scheduleStringBuilder.append(student.getFirstName())
+                .append(", ваш розклад:\n")
+                .append("<b>").append(dateInfo).append("</b>")
+                .append(":\n");
+
+        String currentDay = "";
 
         for (Lesson lesson : lessons) {
+            if (!lesson.getScheduleDay().getDayName().equals(currentDay)) {
+                scheduleStringBuilder.append("\n<b>").append(lesson.getScheduleDay().getDayName()).append("</b>\n");
+                currentDay = lesson.getScheduleDay().getDayName();
+            }
+
             String lessonInfo = String.format(
                     "Предмет: %s\nВикладач: %s\nЧас: %s - %s\nКабінет: %d\n\n",
                     lesson.getTitle(),
@@ -85,26 +98,13 @@ public class MainServiceImpl implements MainService {
                     lesson.getEndLesson(),
                     lesson.getOffice()
             );
+
             scheduleStringBuilder.append(lessonInfo);
         }
 
         return scheduleStringBuilder.toString();
     }
 
-    public String showStudentScheduleThisWeek(AppUser appUser) {
-        boolean isEvenWeek = determineCurrentWeek();
-        try {
-            Student student = studentService.findByAppUser(appUser);
-            Long studentId = student.getId();
-            List<String> daysOfWeek = getDaysOfWeek();
-
-            List<Lesson> lessonList = lessonService.findByWeekdaysAndStudentAndEvenWeek(studentId, isEvenWeek, daysOfWeek);
-
-            return buildScheduleResponse(lessonList, student);
-        } catch (ScheduleException exception) {
-            return exception.getMessage();
-        }
-    }
 
 
     public String showStudentScheduleToday(AppUser appUser) {
@@ -113,13 +113,63 @@ public class MainServiceImpl implements MainService {
             Student student = studentService.findByAppUser(appUser);
             Long studentId = student.getId();
             String dayName = getCurrentDay();
+            LocalDate currentDate = LocalDate.now();
+
             List<Lesson> todayLessons = lessonService
                     .findByDayNameAndStudentAndEvenWeek(dayName,studentId, currentWeek);
-            return buildScheduleResponse(todayLessons, student);
+
+            String dateInfo = currentDate.format(DateTimeFormatter.ofPattern("dd MMMM", new Locale("uk")));
+
+            return buildScheduleResponse(todayLessons, student, dateInfo);
         } catch (ScheduleException exception) {
             return "Error: " + exception.getMessage();
         }
     }
+
+    public String showStudentScheduleThisWeek(AppUser appUser) {
+        boolean isEvenWeek = determineCurrentWeek();
+        try {
+            Student student = studentService.findByAppUser(appUser);
+            Long studentId = student.getId();
+            List<String> daysOfWeek = getDaysOfWeek();
+            LocalDate startDate = getStartOfWeek();
+            LocalDate endDate = getEndOfWeek(startDate);
+
+            List<Lesson> lessonList = lessonService
+                    .findByWeekdaysAndStudentAndEvenWeek(studentId, isEvenWeek, daysOfWeek);
+
+            String weekPeriod = getWeekPeriod(startDate, endDate);
+
+            return buildScheduleResponse(lessonList, student, weekPeriod);
+        } catch (ScheduleException exception) {
+            return exception.getMessage();
+        }
+    }
+
+
+    private String getWeekPeriod(LocalDate startDate, LocalDate endDate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMMM", new Locale("uk"));
+
+        String weekStartStr = startDate.format(formatter);
+        String weekEndStr = endDate.format(formatter);
+
+        return String.format("тиждень з %s по %s", weekStartStr, weekEndStr);
+    }
+
+
+    private LocalDate getStartOfWeek() {
+        LocalDate currentDate = LocalDate.now();
+        DayOfWeek currentDayOfWeek = currentDate.getDayOfWeek();
+
+        int daysUntilMonday = currentDayOfWeek.getValue() - DayOfWeek.MONDAY.getValue();
+
+        return currentDate.minusDays(daysUntilMonday);
+    }
+
+    private LocalDate getEndOfWeek(LocalDate startOfWeek) {
+        return startOfWeek.plusDays(4);
+    }
+
 
     private String getCurrentDay() {
         LocalDate today = LocalDate.now(ZoneId.of("Europe/Kiev"));
@@ -128,7 +178,6 @@ public class MainServiceImpl implements MainService {
         dayName = dayName.substring(0, 1).toUpperCase() + dayName.substring(1);
         return dayName;
     }
-
 
     public List<String> getDaysOfWeek() {
         List<String> daysOfWeek = new ArrayList<>();
@@ -144,7 +193,6 @@ public class MainServiceImpl implements MainService {
 
         return daysOfWeek;
     }
-
 
     private boolean determineCurrentWeek() {
         LocalDate today = LocalDate.now(ZoneId.of("Europe/Kiev"));
