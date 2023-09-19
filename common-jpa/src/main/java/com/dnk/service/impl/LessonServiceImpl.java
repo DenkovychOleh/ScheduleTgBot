@@ -15,21 +15,14 @@ public class LessonServiceImpl implements LessonService {
     private final LessonDAO lessonDAO;
 
     @Override
-    public List<Lesson> getLessonsByScheduleDayId(Long scheduleDayId) {
-        return lessonDAO.findByScheduleDay_Id(scheduleDayId)
+    public List<Lesson> findByDayNameAndStudentAndEvenWeek(Long studentId, String dayName, Boolean isEvenWeek) {
+        return lessonDAO.findByDayNameAndStudentAndEvenWeek(studentId, dayName, isEvenWeek)
                 .filter(lessons -> !lessons.isEmpty())
-                .orElseThrow(() -> new ScheduleException("Помилка отримання предметів за даною датою."));
+                .orElseThrow(() -> new ScheduleException("Цього тижня, " + dayName + " явка на пари не обовʼязкова"));
     }
 
     @Override
-    public List<Lesson> findByDayNameAndStudentAndEvenWeek(String dayName, Long studentId, Boolean isEvenWeek) {
-        return lessonDAO.findByDayNameAndStudentAndEvenWeek(dayName, studentId, isEvenWeek)
-                .filter(lessons -> !lessons.isEmpty())
-                .orElseThrow(() -> new ScheduleException("Розклад за " + dayName + "відстуній"));
-    }
-
-    @Override
-    public List<Lesson> findByWeekdaysAndStudentAndEvenWeek(Long studentId, Boolean isEvenWeek, List<String> weekday) {
+    public List<Lesson> findByWeekdaysAndStudentAndEvenWeek(Long studentId, List<String> weekday, Boolean isEvenWeek) {
         return lessonDAO.findByWeekdaysAndStudentAndEvenWeek(studentId, isEvenWeek, weekday)
                 .filter(lessons -> !lessons.isEmpty())
                 .orElseThrow(() -> new ScheduleException("Розклад на цей тиждень відстуній"));

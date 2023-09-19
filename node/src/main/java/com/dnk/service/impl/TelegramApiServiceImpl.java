@@ -51,7 +51,7 @@ public class TelegramApiServiceImpl implements TelegramApiService {
         } else if (MY_SCHEDULE_THIS_WEEK.toString().equals(cmd)) {
             return commandService.showStudentScheduleThisWeek(appUser);
         } else if (MY_SCHEDULE_NEXT_WEEK.toString().equals(cmd)) {
-            return commandService.showScheduleNextWeek();
+            return commandService.showStudentScheduleNextWeek(appUser);
         } else if (SCHEDULE_THIS_WEEK.toString().equals(cmd)) {
             return commandService.showScheduleThisWeek();
         } else if (SCHEDULE_NEXT_WEEK.toString().equals(cmd)) {
@@ -66,7 +66,6 @@ public class TelegramApiServiceImpl implements TelegramApiService {
     private AppUser findOrSaveAppUser(Update update) {
         User telegramUser = update.getMessage().getFrom();
         Long telegramUserId = telegramUser.getId();
-        appUserService.findByTelegramUserId(telegramUserId);
         try {
             return appUserService.findByTelegramUserId(telegramUserId);
         } catch (ScheduleException ex) {

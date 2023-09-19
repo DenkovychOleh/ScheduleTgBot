@@ -5,5 +5,4 @@ import com.dnk.entity.Schedule;
 import java.util.List;
 
 public interface ScheduleService {
-    List<Schedule> getSchedulesForStudentById(Long studentId);
 }

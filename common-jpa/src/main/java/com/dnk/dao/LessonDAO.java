@@ -10,13 +10,12 @@ import java.util.List;
 import java.util.Optional;
 
 public interface LessonDAO extends JpaRepository<Lesson, Long> {
-   Optional<List<Lesson>> findByScheduleDay_Id(Long scheduleDayId);
 
    @Query("SELECT l FROM Lesson l JOIN l.scheduleDay sd JOIN sd.schedules s JOIN s.student st " +
            "WHERE sd.dayName = :dayName AND st.id = :studentId AND sd.isEvenWeek = :isEvenWeek")
    Optional<List<Lesson>> findByDayNameAndStudentAndEvenWeek(
-           @Param("dayName") String dayName,
            @Param("studentId") Long studentId,
+           @Param("dayName") String dayName,
            @Param("isEvenWeek") Boolean isEvenWeek
    );
 

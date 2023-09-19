@@ -68,14 +68,21 @@ public class CommandServiceImpl implements CommandService {
         return String.format("тиждень з %s по %s", weekStartStr, weekEndStr);
     }
 
+    private LocalDate formatWeek(LocalDate date) {
+        DayOfWeek currentDayOfWeek = date.getDayOfWeek();
+        int daysUntilMonday = currentDayOfWeek.getValue() - DayOfWeek.MONDAY.getValue();
+        return date.minusDays(daysUntilMonday);
+    }
+
 
     private LocalDate getStartOfWeek() {
         LocalDate currentDate = LocalDate.now();
-        DayOfWeek currentDayOfWeek = currentDate.getDayOfWeek();
+        return formatWeek(currentDate);
+    }
 
-        int daysUntilMonday = currentDayOfWeek.getValue() - DayOfWeek.MONDAY.getValue();
-
-        return currentDate.minusDays(daysUntilMonday);
+    private LocalDate getStartOfNextWeek() {
+        LocalDate nextWeekDate = LocalDate.now().plusWeeks(1);
+        return formatWeek(nextWeekDate);
     }
 
     private LocalDate getEndOfWeek(LocalDate startOfWeek) {
@@ -83,12 +90,20 @@ public class CommandServiceImpl implements CommandService {
     }
 
 
-    private String getCurrentDay() {
-        LocalDate today = LocalDate.now(ZoneId.of("Europe/Kiev"));
+    private String formatDayName(LocalDate date) {
         Locale ukrainianLocale = new Locale("uk", "UA");
-        String dayName = today.getDayOfWeek().getDisplayName(TextStyle.FULL_STANDALONE, ukrainianLocale);
-        dayName = dayName.substring(0, 1).toUpperCase() + dayName.substring(1);
-        return dayName;
+        String dayName = date.getDayOfWeek().getDisplayName(TextStyle.FULL_STANDALONE, ukrainianLocale);
+        return dayName.substring(0, 1).toUpperCase() + dayName.substring(1);
+    }
+
+    private String getTomorrowDay() {
+        LocalDate tomorrow = LocalDate.now().plusDays(1);
+        return formatDayName(tomorrow);
+    }
+
+    private String getCurrentDay() {
+        LocalDate today = LocalDate.now();
+        return formatDayName(today);
     }
 
     public List<String> getDaysOfWeek() {
@@ -106,7 +121,7 @@ public class CommandServiceImpl implements CommandService {
         return daysOfWeek;
     }
 
-    private boolean determineCurrentWeek() {
+    private boolean isEvenWeek() {
         LocalDate today = LocalDate.now(ZoneId.of("Europe/Kiev"));
          return today.get(WeekFields.of(Locale.getDefault()).weekOfWeekBasedYear()) % 2 == 0;
     }
@@ -123,36 +138,52 @@ public class CommandServiceImpl implements CommandService {
 
     @Override
     public String showStudentScheduleToday(AppUser appUser) {
-        boolean currentWeek = determineCurrentWeek();
+        return showStudentScheduleForDay(appUser, getCurrentDay());
+    }
+
+    @Override
+    public String showStudentScheduleTomorrow(AppUser appUser) {
+        return showStudentScheduleForDay(appUser, getTomorrowDay());
+    }
+
+    private String showStudentScheduleForDay(AppUser appUser, String dayName) {
         try {
             Student student = studentService.findByAppUser(appUser);
             Long studentId = student.getId();
-            String dayName = getCurrentDay();
             LocalDate currentDate = LocalDate.now();
+            String dateInfo = currentDate.format(DateTimeFormatter.ofPattern("dd MMMM", new Locale("uk")));
 
             List<Lesson> todayLessons = lessonService
-                    .findByDayNameAndStudentAndEvenWeek(dayName, studentId, currentWeek);
-
-            String dateInfo = currentDate.format(DateTimeFormatter.ofPattern("dd MMMM", new Locale("uk")));
+                    .findByDayNameAndStudentAndEvenWeek(studentId, dayName, isEvenWeek());
 
             return buildScheduleResponse(todayLessons, student, dateInfo);
         } catch (ScheduleException exception) {
-            return "Error: " + exception.getMessage();
+            return exception.getMessage();
         }
     }
 
     @Override
     public String showStudentScheduleThisWeek(AppUser appUser) {
-        boolean isEvenWeek = determineCurrentWeek();
+        boolean isEvenCurrentWeek = isEvenWeek();
+        return showStudentScheduleForWeek(appUser, isEvenCurrentWeek);
+    }
+
+    @Override
+    public String showStudentScheduleNextWeek(AppUser appUser) {
+        boolean isEvenNextWeek = !isEvenWeek();
+        return showStudentScheduleForWeek(appUser, isEvenNextWeek);
+    }
+
+    private String showStudentScheduleForWeek(AppUser appUser, boolean isNextWeek) {
         try {
             Student student = studentService.findByAppUser(appUser);
             Long studentId = student.getId();
             List<String> daysOfWeek = getDaysOfWeek();
-            LocalDate startDate = getStartOfWeek();
+            LocalDate startDate = isNextWeek ? getStartOfNextWeek() : getStartOfWeek();
             LocalDate endDate = getEndOfWeek(startDate);
 
             List<Lesson> lessonList = lessonService
-                    .findByWeekdaysAndStudentAndEvenWeek(studentId, false, daysOfWeek);
+                    .findByWeekdaysAndStudentAndEvenWeek(studentId, daysOfWeek, isNextWeek);
 
             String weekPeriod = getWeekPeriod(startDate, endDate);
 
@@ -162,15 +193,6 @@ public class CommandServiceImpl implements CommandService {
         }
     }
 
-    @Override
-    public String showStudentScheduleTomorrow(AppUser appUser) {
-        return "showStudentScheduleTomorrow";
-    }
-
-    @Override
-    public String showStudentScheduleNextWeek(AppUser appUser) {
-        return "showStudentScheduleNextWeek";
-    }
 
 
     @Override

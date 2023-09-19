@@ -8,5 +8,4 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ScheduleDAO extends JpaRepository<Schedule, Long> {
-    Optional<List<Schedule>> findByStudentId(Long studentId);
 }
