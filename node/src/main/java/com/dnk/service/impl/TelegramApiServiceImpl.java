@@ -1,9 +1,7 @@
 package com.dnk.service.impl;
 
 import com.dnk.dao.AppUserDAO;
-import com.dnk.dao.RawDataDAO;
 import com.dnk.entity.AppUser;
-import com.dnk.entity.RawData;
 import com.dnk.exception.ScheduleException;
 import com.dnk.service.AppUserService;
 import com.dnk.service.CommandService;
@@ -21,7 +19,6 @@ import static com.dnk.service.enums.ServiceCommands.*;
 @Service
 public class TelegramApiServiceImpl implements TelegramApiService {
 
-    private final RawDataDAO rawDataDAO;
     private final ProducerService producerService;
     private final AppUserDAO appUserDAO;
     private final AppUserService appUserService;
@@ -36,7 +33,6 @@ public class TelegramApiServiceImpl implements TelegramApiService {
     }
 
     public void processTextMessage(Update update) {
-        saveRawData(update);
         AppUser appUser = findOrSaveAppUser(update);
         String text = update.getMessage().getText();
         String output = processServiceCommand(appUser, text);
@@ -78,12 +74,5 @@ public class TelegramApiServiceImpl implements TelegramApiService {
                     .build();
             return appUserDAO.save(transientAppUser);
         }
-    }
-
-    private void saveRawData(Update update) {
-        RawData rawData = RawData.builder()
-                .event(update)
-                .build();
-        rawDataDAO.save(rawData);
     }
 }

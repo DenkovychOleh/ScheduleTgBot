@@ -9,6 +9,6 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface ScheduleDayDAO extends JpaRepository<ScheduleDay, Long> {
-    @Query("SELECT DISTINCT s.dayName FROM ScheduleDay s")
+    @Query("SELECT s.dayName FROM ScheduleDay s ORDER BY s.id ASC")
     Optional<List<String>> findDistinctDayNames();
 }

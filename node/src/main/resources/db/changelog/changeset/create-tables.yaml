@@ -1,0 +1,136 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: Oleh-Denkovych
+      changes:
+        - createTable:
+            tableName: app_user
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: telegram_user_id
+                  type: BIGINT
+              - column:
+                  name: first_login_date
+                  type: TIMESTAMP
+              - column:
+                  name: first_name
+                  type: VARCHAR(255)
+              - column:
+                  name: last_name
+                  type: VARCHAR(255)
+              - column:
+                  name: username
+                  type: VARCHAR(255)
+
+        - createTable:
+            tableName: lessons
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: title
+                  type: VARCHAR(255)
+              - column:
+                  name: teacher
+                  type: VARCHAR(255)
+              - column:
+                  name: office
+                  type: INTEGER
+              - column:
+                  name: start_lesson
+                  type: VARCHAR(255)
+              - column:
+                  name: end_lesson
+                  type: VARCHAR(255)
+              - column:
+                  name: schedule_day_id
+                  type: BIGINT
+
+        - createTable:
+            tableName: schedules
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: student_id
+                  type: BIGINT
+              - column:
+                  name: schedule_day_id
+                  type: BIGINT
+
+        - createTable:
+            tableName: schedules_days
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: day_name
+                  type: VARCHAR(255)
+              - column:
+                  name: is_even_week
+                  type: BOOLEAN
+
+        - createTable:
+            tableName: students
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: first_name
+                  type: VARCHAR(255)
+              - column:
+                  name: last_name
+                  type: VARCHAR(255)
+              - column:
+                  name: app_user_id
+                  type: BIGINT
+
+        - addForeignKeyConstraint:
+            baseTableName: lessons
+            baseColumnNames: schedule_day_id
+            referencedTableName: schedules_days
+            referencedColumnNames: id
+            constraintName: fk_lessons_schedule_day
+
+        - addForeignKeyConstraint:
+            baseTableName: schedules
+            baseColumnNames: student_id
+            referencedTableName: students
+            referencedColumnNames: id
+            constraintName: fk_schedules_student
+
+        - addForeignKeyConstraint:
+            baseTableName: schedules
+            baseColumnNames: schedule_day_id
+            referencedTableName: schedules_days
+            referencedColumnNames: id
+            constraintName: fk_schedules_schedule_day
+
+        - addForeignKeyConstraint:
+            baseTableName: students
+            baseColumnNames: app_user_id
+            referencedTableName: app_user
+            referencedColumnNames: id
+            constraintName: fk_students_app_user

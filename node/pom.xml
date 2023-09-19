@@ -62,5 +62,11 @@
             <artifactId>hibernate-types-52</artifactId>
             <version>2.2.2</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+            <version>4.23.2</version>
+        </dependency>
     </dependencies>
 </project>

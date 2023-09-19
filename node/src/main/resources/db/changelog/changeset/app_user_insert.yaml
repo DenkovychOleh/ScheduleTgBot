@@ -1,0 +1,26 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2
+      author: Oleh-Denkovych
+      changes:
+        - insert:
+            tableName: app_user
+            columns:
+              - column:
+                  name: id
+                  value: 1
+              - column:
+                  name: first_login_date
+                  value: 2023-09-17 23:13:05.365000
+              - column:
+                  name: first_name
+                  value: Oleh
+              - column:
+                  name: last_name
+                  value: Denkovych
+              - column:
+                  name: telegram_user_id
+                  value: 748146922
+              - column:
+                  name: username
+                  value: oleh_denkovych

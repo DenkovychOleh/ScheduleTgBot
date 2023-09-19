@@ -19,13 +19,8 @@ public class ScheduleDayServiceImpl implements ScheduleDayService {
     public List<String> findDistinctDayNames() {
         return scheduleDayDAO.findDistinctDayNames()
                 .filter(strings -> !strings.isEmpty())
-                .orElseThrow(() -> new ScheduleException("fds"));
-    }
+                .map(strings -> strings.subList(0, 5))
+                .orElseThrow(() -> new ScheduleException("Дні не знайдено"));
 
-//    @Override
-//    public List<String> findDistinctDayNamesOrderedById() {
-//        return scheduleDayDAO.findDistinctDayNamesOrderedById()
-//                .filter(strings -> !strings.isEmpty())
-//                .orElseThrow(() -> new ScheduleException("Розклад на цей тиждень не знайдено"));
-//    }
+    }
 }
