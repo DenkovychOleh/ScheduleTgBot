@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 @Service
 public class AppUserServiceImpl implements AppUserService {
+
     private final AppUserDAO appUserDAO;
 
     @Override

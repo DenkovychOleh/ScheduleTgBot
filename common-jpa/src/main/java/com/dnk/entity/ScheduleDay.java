@@ -24,6 +24,7 @@ public class ScheduleDay {
     @Column(name = "is_even_week")
     private Boolean isEvenWeek;
 
+
     @OneToMany(mappedBy = "scheduleDay")
     private List<Schedule> schedules;
 

@@ -13,9 +13,11 @@ import javax.persistence.*;
 @Entity
 @Table(name = "schedules")
 public class Schedule {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
 
     @ManyToOne
     @JoinColumn(name = "student_id", referencedColumnName = "id")

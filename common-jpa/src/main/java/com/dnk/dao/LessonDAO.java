@@ -1,7 +1,6 @@
 package com.dnk.dao;
 
 import com.dnk.entity.Lesson;
-import com.dnk.entity.ScheduleDay;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

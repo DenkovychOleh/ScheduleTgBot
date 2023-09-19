@@ -13,6 +13,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "lessons")
 public class Lesson {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -31,6 +32,7 @@ public class Lesson {
 
     @Column(name = "end_lesson")
     private String endLesson;
+
 
     @ManyToOne
     @JoinColumn(name = "schedule_day_id", referencedColumnName = "id")

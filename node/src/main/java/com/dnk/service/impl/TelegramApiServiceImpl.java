@@ -20,6 +20,7 @@ import static com.dnk.service.enums.ServiceCommands.*;
 @AllArgsConstructor
 @Service
 public class TelegramApiServiceImpl implements TelegramApiService {
+
     private final RawDataDAO rawDataDAO;
     private final ProducerService producerService;
     private final AppUserDAO appUserDAO;
