@@ -6,6 +6,7 @@ import com.dnk.entity.Student;
 import com.dnk.exception.ScheduleException;
 import com.dnk.service.CommandService;
 import com.dnk.service.LessonService;
+import com.dnk.service.ScheduleDayService;
 import com.dnk.service.StudentService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,8 @@ public class CommandServiceImpl implements CommandService {
     private final LessonService lessonService;
 
     private final StudentService studentService;
+
+    private final ScheduleDayService scheduleDayService;
 
 
     @Override
@@ -53,9 +56,41 @@ public class CommandServiceImpl implements CommandService {
     }
 
     @Override
-    public String showScheduleThisWeek() {
-        return "showScheduleThisWeek";
+        public String showScheduleThisWeek() {
+            boolean evenWeek = isEvenWeek();
+            List<String> daysOfWeek = getDaysOfWeek();
+        try {
+            List<String> distinctByDayName = scheduleDayService.findDistinctDayNames();
+            return buildStudentsScheduleResponse(distinctByDayName,evenWeek);
+        }  catch (ScheduleException exception) {
+            return exception.getMessage();
+        }
     }
+
+
+
+    private String buildStudentsScheduleResponse(List<String> weekdays, Boolean isEvenWeek) {
+        try {
+            StringBuilder scheduleStringBuilder = new StringBuilder();
+            for (String weekday : weekdays) {
+                scheduleStringBuilder.append(weekday).append(":\n");
+
+                List<Student> studentList = studentService.findScheduleByDay(weekday, isEvenWeek);
+
+                for (Student student : studentList) {
+                    scheduleStringBuilder.append(student.getFirstName())
+                            .append(" ")
+                            .append(student.getLastName())
+                            .append("\n");
+                }
+                scheduleStringBuilder.append("\n");
+            }
+            return scheduleStringBuilder.toString();
+        } catch (ScheduleException exception) {
+           return exception.getMessage();
+        }
+    }
+
 
     @Override
     public String showScheduleNextWeek() {
@@ -177,6 +212,6 @@ public class CommandServiceImpl implements CommandService {
             dayName = dayName.replace("'", "");
             daysOfWeek.add(dayName);
         }
-        return daysOfWeek;
+        return daysOfWeek.subList(0, daysOfWeek.size()-2);
     }
 }
