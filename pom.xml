@@ -9,10 +9,9 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
-        <module>dispatcher</module>
-        <module>common-rabbitmq</module>
-        <module>node</module>
         <module>common-jpa</module>
+        <module>dispatcher</module>
+        <module>node</module>
     </modules>
 
     <properties>
