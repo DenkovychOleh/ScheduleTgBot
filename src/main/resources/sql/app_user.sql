@@ -1,0 +1,1 @@
+INSERT INTO public.app_user (id, first_login_data, first_name, last_name, notification_status, role, telegram_user_id, username) VALUES (1, '2023-09-25 23:52:09.385000', 'Oleh', 'Denkovych', 'ON', 'ADMIN', 748146922, 'oleh_denkovych');
