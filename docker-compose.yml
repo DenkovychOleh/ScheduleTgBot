@@ -1,46 +1,42 @@
 version: '3'
 services:
   dispatcher:
-    image: dispatcher-image
+    image: dispatcher-image2
     build:
       context: ./dispatcher
       dockerfile: Dockerfile
     ports:
-      - "8084:8084" # Вказати потрібний порт для диспетчера
+      - "8084:8084"
     environment:
-      - SERVER_PORT=8085 # Встановити потрібний порт для диспетчера
+      - SERVER_PORT=8084
       - SPRING_RABBITMQ_HOST=rabbitmq
       - SPRING_RABBITMQ_PORT=5672
       - SPRING_RABBITMQ_USERNAME=olehdnk
       - SPRING_RABBITMQ_PASSWORD=dnk123
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://ep-icy-dew-69842620.eu-central-1.aws.neon.tech/neondb?user=dnk.oleh&password=px0rfeCAGwl6
-      - SPRING_JPA_GENERATE_DDL=true
-      - SPRING_LIQUIBASE_ENABLED=false
       - SPRING_RABBITMQ_QUEUES_TEXT_MESSAGE_UPDATE=text_message_updated
       - SPRING_RABBITMQ_QUEUES_ANSWER_MESSAGE=text_message_answer
     depends_on:
-      - rabbitmq # Залежить від контейнера RabbitMQ
+      - rabbitmq
 
   node:
-    image: node-image
+    image: node-image2
     build:
       context: ./node
       dockerfile: Dockerfile
     ports:
-      - "8085:8085" # Вказати потрібний порт для ноди
+      - "8085:8085"
     environment:
-      - SERVER_PORT=8085 # Встановити потрібний порт для ноди
+      - SERVER_PORT=8085
       - SPRING_RABBITMQ_HOST=rabbitmq
       - SPRING_RABBITMQ_PORT=5672
       - SPRING_RABBITMQ_USERNAME=olehdnk
       - SPRING_RABBITMQ_PASSWORD=dnk123
       - SPRING_DATASOURCE_URL=jdbc:postgresql://ep-icy-dew-69842620.eu-central-1.aws.neon.tech/neondb?user=dnk.oleh&password=px0rfeCAGwl6
       - SPRING_JPA_GENERATE_DDL=true
-      - SPRING_LIQUIBASE_ENABLED=false
       - SPRING_RABBITMQ_QUEUES_TEXT_MESSAGE_UPDATE=text_message_updated
       - SPRING_RABBITMQ_QUEUES_ANSWER_MESSAGE=text_message_answer
     depends_on:
-      - rabbitmq # Залежить від контейнера RabbitMQ
+      - rabbitmq
 
   rabbitmq:
     image: "rabbitmq:3.9.15-management"
