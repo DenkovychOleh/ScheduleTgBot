@@ -19,6 +19,7 @@ target/
 *.iml
 *.ipr
 /logs
+Dockerfile
 
 ### NetBeans ###
 /nbproject/private/
