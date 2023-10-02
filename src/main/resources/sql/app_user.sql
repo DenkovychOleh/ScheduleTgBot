@@ -1,1 +1,2 @@
 INSERT INTO public.app_user (id, first_login_data, first_name, last_name, notification_status, role, telegram_user_id, username) VALUES (1, '2023-09-25 23:52:09.385000', 'Oleh', 'Denkovych', 'ON', 'ADMIN', 748146922, 'oleh_denkovych');
+INSERT INTO public.app_user (id, first_login_data, first_name, last_name, notification_status, role, telegram_user_id, username) VALUES (4, '2023-10-01 19:57:43.381000', 'Vishnevskyy', 'Yuri', 'ON', 'USER', 569351799, 'yurok3030');

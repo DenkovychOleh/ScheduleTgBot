@@ -27,4 +27,27 @@ public class StudentServiceImpl implements StudentService {
                 .filter(students -> !students.isEmpty())
                 .orElseThrow(() -> new ScheduleException("Розклад на цей день не знайдено"));
     }
+
+    @Override
+    public List<Student> findStudentsByWithoutAppUser() {
+        return studentDAO.findStudentsByWithoutAppUser()
+                .filter(students -> !students.isEmpty())
+                .orElseThrow(() -> new ScheduleException("Студентів з пустими телеграми не знайдено"));
+    }
+
+    @Override
+    public boolean existsById(long id) {
+        return studentDAO.existsById(id);
+    }
+
+    @Override
+    public Student findById(long id) {
+        return studentDAO.findById(id)
+                .orElseThrow(() -> new ScheduleException("Помилка студента за його Id"));
+
+    }
+    @Override
+    public Student save(Student student) {
+        return studentDAO.save(student);
+    }
 }

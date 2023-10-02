@@ -19,4 +19,10 @@ public interface StudentDAO extends JpaRepository<Student, Long> {
             @Param("isEvenWeek") Boolean isEvenWeek
     );
 
+    @Query("SELECT s FROM Student s WHERE s.appUser = null")
+    Optional<List<Student>> findStudentsByWithoutAppUser();
+
+    boolean existsById(long id);
+
+    Optional<Student> findById (long id);
 }

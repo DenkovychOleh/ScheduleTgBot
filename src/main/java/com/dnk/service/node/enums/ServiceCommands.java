@@ -13,6 +13,7 @@ public enum ServiceCommands {
     STUDENTS_NEXT_WEEK("/studentsnextweek"),
     HELP("/help"),
     SEND("/send"),
+    SET_STUDENT("/setstudent"),
     SET_NOTIFICATION_ON("/seton"),
     SET_NOTIFICATION_OFF("/setoff");
     private final String value;

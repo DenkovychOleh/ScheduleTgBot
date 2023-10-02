@@ -16,4 +16,6 @@ public interface CommandService {
     String showStudentsNextWeek();
     String setNotificationOn(AppUser appUser);
     String setNotificationOff(AppUser appUser);
+    String setStudent(AppUser appUser);
+
 }

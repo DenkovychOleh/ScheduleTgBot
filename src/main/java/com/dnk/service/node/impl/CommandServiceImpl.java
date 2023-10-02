@@ -102,6 +102,11 @@ public class CommandServiceImpl implements CommandService {
         return setNotification(appUser, AppUser.NotificationStatus.OFF);
     }
 
+    @Override
+    public String setStudent(AppUser appUser) {
+        return "Виберіть телеграм аккаунт: ";
+    }
+
     public String setNotification(AppUser appUser, AppUser.NotificationStatus notificationStatus) {
         try {
             AppUser user = appUserService.findByTelegramUserId(appUser.getTelegramUserId());

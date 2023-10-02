@@ -28,7 +28,7 @@ public class AppUser {
     private LocalDateTime firstLoginDate;
 
     @Column(name = "first_name")
-    private String fistName;
+    private String firstName;
 
     @Column(name = "last_name")
     private String lastName;

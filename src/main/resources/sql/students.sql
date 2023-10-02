@@ -23,6 +23,6 @@ INSERT INTO public.students (id, first_name, last_name, app_user_id) VALUES (25,
 INSERT INTO public.students (id, first_name, last_name, app_user_id) VALUES (26, 'Олег', 'Грицик', null);
 INSERT INTO public.students (id, first_name, last_name, app_user_id) VALUES (27, 'Маркіян', 'Пацула', null);
 INSERT INTO public.students (id, first_name, last_name, app_user_id) VALUES (28, 'Юрій', 'Носевич', null);
-INSERT INTO public.students (id, first_name, last_name, app_user_id) VALUES (12, 'Юрій', 'Вишневський', null);
-INSERT INTO public.students (id, first_name, last_name, app_user_id) VALUES (2, 'Денис', 'Старинський', null);
 INSERT INTO public.students (id, first_name, last_name, app_user_id) VALUES (1, 'Олег', 'Денькович', 1);
+INSERT INTO public.students (id, first_name, last_name, app_user_id) VALUES (2, 'Денис', 'Старинський', null);
+INSERT INTO public.students (id, first_name, last_name, app_user_id) VALUES (12, 'Юрій', 'Вишневський', 4);

@@ -10,4 +10,11 @@ public interface StudentService {
 
     List<Student> findScheduleByDay(String day, Boolean isEvenWeek);
 
+    List<Student> findStudentsByWithoutAppUser();
+
+    boolean existsById(long id);
+
+    Student findById (long id);
+
+    Student save(Student student);
 }

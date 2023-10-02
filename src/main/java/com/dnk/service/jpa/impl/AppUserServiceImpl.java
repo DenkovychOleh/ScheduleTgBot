@@ -17,7 +17,8 @@ public class AppUserServiceImpl implements AppUserService {
 
     @Override
     public AppUser findByTelegramUserId(Long telegramUserId) {
-        return appUserDAO.findByTelegramUserId(telegramUserId).orElseThrow(() -> new ScheduleException("Помилка знаходження користувача за даним Telegram, щоб привʼязати аккаунта напишить - @oleh_denkovych"));
+        return appUserDAO.findByTelegramUserId(telegramUserId)
+                .orElseThrow(() -> new ScheduleException("Помилка знаходження користувача за даним Telegram, щоб привʼязати аккаунта напишить - @oleh_denkovych"));
     }
 
     @Override
@@ -35,5 +36,17 @@ public class AppUserServiceImpl implements AppUserService {
         return appUserDAO.findAllByNotificationStatus()
                 .filter(strings -> !strings.isEmpty())
                 .orElseThrow(() -> new ScheduleException("Не знайдено користувачів, у яких увімкнені сповіщення"));
+    }
+
+    @Override
+    public List<AppUser> findAppUsersWithoutStudents() {
+        return appUserDAO.findAppUsersWithoutStudents()
+                .filter(strings -> !strings.isEmpty())
+                .orElseThrow(() -> new ScheduleException("Нових користувачів не знайдено"));
+    }
+
+    @Override
+    public boolean existsByTelegramUserId(Long id) {
+        return appUserDAO.existsByTelegramUserId(id);
     }
 }

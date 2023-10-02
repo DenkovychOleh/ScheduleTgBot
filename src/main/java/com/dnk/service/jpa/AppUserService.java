@@ -9,4 +9,6 @@ public interface AppUserService {
     AppUser save(AppUser appUser);
     List<AppUser> findAll();
     List<AppUser> findAllByNotificationStatus();
+    List<AppUser> findAppUsersWithoutStudents();
+    boolean existsByTelegramUserId(Long id);
 }
